@@ -6,7 +6,10 @@ import com.onb.Onboarding.infrastructure.adapters.ports.out.CourseRepository;
 import com.onb.Onboarding.infrastructure.adapters.ports.out.ExamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -27,6 +30,12 @@ public class CourseService {
         }
 
         return courseRepository.save(course);
+    }
+
+    public List<Course> getAllCourse(){
+        return courseRepository.findAll().stream().map(course -> {
+            return course;
+        }).collect(Collectors.toList());
     }
 
     public Optional<Course> getCourseById(String id) {
@@ -50,6 +59,24 @@ public class CourseService {
             return courseRepository.save(course);
         } else {
             throw new RuntimeException("Course not found with id " + id);
+        }
+    }
+
+    public void deleteCourseById(String id) {
+        Optional<Course> courseOptional = courseRepository.findById(id);
+
+        if (courseOptional.isPresent()) {
+            Course course = courseOptional.get();
+
+            // Borrar el examen asociado
+            if (course.getExam() != null && course.getExam().getId() != null) {
+                examRepository.deleteById(course.getExam().getId());
+            }
+
+            // Borrar el curso
+            courseRepository.delete(course);
+        } else {
+            throw new IllegalArgumentException("El id del curso no existe");
         }
     }
 }

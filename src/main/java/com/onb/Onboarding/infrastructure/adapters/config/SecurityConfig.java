@@ -18,7 +18,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()  // For not use Cookies in the Api
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/user/login", "/api/user/register", "/api/exams/update/66fe1ee5a9168b1f58267449").permitAll()  // Access to authenticate
+                        .requestMatchers("/api/user/login", "/api/user/register").permitAll()  // Access to authenticate
                         .anyRequest().authenticated())  // Require authenticate for eny more request
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Not state

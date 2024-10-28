@@ -7,12 +7,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Setter
+@Getter
 @Document(collection = "users")
 public class User {
-    @Id private String id;
-    @Getter @Setter String name;
-    @Getter @Setter private String lastname;
-    @Getter @Setter private String email;
-    @Getter @Setter private String password;
-    @Getter @Setter private String rol;
+    @Id
+    private String id;
+    String name;
+    private String lastname;
+    private String email;
+    private String password;
+    private String rol;
 }
