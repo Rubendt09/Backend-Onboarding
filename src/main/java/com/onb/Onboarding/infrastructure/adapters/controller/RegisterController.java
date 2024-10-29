@@ -2,6 +2,7 @@ package com.onb.Onboarding.infrastructure.adapters.controller;
 
 import com.onb.Onboarding.application.service.RegisterService;
 import com.onb.Onboarding.domain.model.Register;
+import com.onb.Onboarding.infrastructure.adapters.dto.RegisterDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,22 @@ public class RegisterController {
     private RegisterService registerService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Register>> getAllRegisters() {
-        List<Register> registers = registerService.getAllRegisters();
-        return ResponseEntity.ok(registers);
+    public ResponseEntity<List<RegisterDTO>> getAllRegisters() {
+        List<RegisterDTO> registerDTOs = registerService.getAllRegisters().stream().map(register -> {
+            RegisterDTO dto = new RegisterDTO();
+            dto.setId(register.getId());
+            dto.setFullName(register.getUser().getName() + " " + register.getUser().getLastname());
+            dto.setEmail(register.getUser().getEmail());
+            dto.setCourseIds(register.getCourses().stream()
+                    .map(courseGrade -> courseGrade.getCourse().getId())
+                    .toList());
+            dto.setCourseCount(register.getCourses().size());
+            return dto;
+        }).toList();
+
+        return ResponseEntity.ok(registerDTOs);
     }
+
 
     @PostMapping("/create/{userId}")
     public ResponseEntity<Register> createRegister(
