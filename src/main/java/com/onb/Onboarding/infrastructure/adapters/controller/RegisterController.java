@@ -72,4 +72,15 @@ public class RegisterController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
+    @GetMapping("/details-by-email/{email}")
+    public ResponseEntity<List<Register.CourseGrade>> getRegisterDetailsByEmail(@PathVariable String email) {
+        try {
+            List<Register.CourseGrade> courses = registerService.getRegisterDetailsByEmail(email);
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
 }

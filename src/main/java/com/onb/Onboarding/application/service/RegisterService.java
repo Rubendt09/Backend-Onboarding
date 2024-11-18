@@ -104,4 +104,21 @@ public class RegisterService {
 
         return registerRepository.save(register);
     }
+
+    public List<Register.CourseGrade> getRegisterDetailsByEmail(String email) throws Exception {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new Exception("User not found with email: " + email);
+        }
+
+        Optional<Register> registerOptional = registerRepository.findByUserId(user.getId());
+        if (registerOptional.isEmpty()) {
+            throw new Exception("No register found for user with email: " + email);
+        }
+
+        Register register = registerOptional.get();
+        return register.getCourses();
+    }
+
+
 }
