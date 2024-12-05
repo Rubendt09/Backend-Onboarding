@@ -3,6 +3,8 @@ package com.onb.Onboarding.application.service;
 import com.onb.Onboarding.domain.model.Course;
 import com.onb.Onboarding.domain.model.Register;
 import com.onb.Onboarding.domain.model.User;
+import com.onb.Onboarding.infrastructure.adapters.dto.CourseDTO;
+import com.onb.Onboarding.infrastructure.adapters.dto.RegisterDetailsDTO;
 import com.onb.Onboarding.infrastructure.adapters.ports.out.CourseRepository;
 import com.onb.Onboarding.infrastructure.adapters.ports.out.RegisterRepository;
 import com.onb.Onboarding.infrastructure.adapters.ports.out.UserRepository;
@@ -105,7 +107,7 @@ public class RegisterService {
         return registerRepository.save(register);
     }
 
-    public List<Register.CourseGrade> getRegisterDetailsByEmail(String email) throws Exception {
+    public List<RegisterDetailsDTO> getRegisterDetailsByEmail(String email) throws Exception {
         User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new Exception("User not found with email: " + email);
@@ -117,8 +119,40 @@ public class RegisterService {
         }
 
         Register register = registerOptional.get();
-        return register.getCourses();
+
+        // Crear una lista de DTOs con el ID del registro y los detalles de los cursos
+        return register.getCourses().stream()
+                .map(courseGrade -> {
+                    RegisterDetailsDTO dto = new RegisterDetailsDTO();
+                    dto.setRegisterId(register.getId()); // Aquí agregamos el ID del registro
+                    dto.setCourse(courseGrade.getCourse());
+                    dto.setGrade(courseGrade.getGrade());
+                    dto.setStartDate(courseGrade.getStartDate());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
 
+    // Método para actualizar la calificación de un curso en un registro
+    public Register updateCourseGrade(String registerId, String courseId, int newGrade) throws Exception {
+        Optional<Register> optionalRegister = registerRepository.findById(registerId);
+        if (!optionalRegister.isPresent()) {
+            throw new Exception("Register not found");
+        }
+
+        Register register = optionalRegister.get();
+        Optional<Register.CourseGrade> courseGradeOptional = register.getCourses().stream()
+                .filter(courseGrade -> courseGrade.getCourse().getId().equals(courseId))
+                .findFirst();
+
+        if (!courseGradeOptional.isPresent()) {
+            throw new Exception("Course not found in the register");
+        }
+
+        Register.CourseGrade courseGrade = courseGradeOptional.get();
+        courseGrade.setGrade(newGrade); // Actualizamos la calificación
+
+        return registerRepository.save(register); // Guardamos el registro con la calificación actualizada
+    }
 }

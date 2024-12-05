@@ -3,6 +3,7 @@ package com.onb.Onboarding.infrastructure.adapters.controller;
 import com.onb.Onboarding.application.service.RegisterService;
 import com.onb.Onboarding.domain.model.Register;
 import com.onb.Onboarding.infrastructure.adapters.dto.RegisterDTO;
+import com.onb.Onboarding.infrastructure.adapters.dto.RegisterDetailsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -74,13 +75,29 @@ public class RegisterController {
     }
 
     @GetMapping("/details-by-email/{email}")
-    public ResponseEntity<List<Register.CourseGrade>> getRegisterDetailsByEmail(@PathVariable String email) {
+    public ResponseEntity<List<RegisterDetailsDTO>> getRegisterDetailsByEmail(@PathVariable String email) {
         try {
-            List<Register.CourseGrade> courses = registerService.getRegisterDetailsByEmail(email);
-            return ResponseEntity.ok(courses);
+            List<RegisterDetailsDTO> details = registerService.getRegisterDetailsByEmail(email);
+            return ResponseEntity.ok(details);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
+
+
+
+    // Endpoint para actualizar la calificación de un curso en un registro
+    @PutMapping("/update-grade/{registerId}/{courseId}")
+    public ResponseEntity<Register> updateCourseGrade(
+            @PathVariable String registerId,
+            @PathVariable String courseId,
+            @RequestParam int newGrade) {
+        try {
+            Register updatedRegister = registerService.updateCourseGrade(registerId, courseId, newGrade);
+            return ResponseEntity.ok(updatedRegister);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }
